@@ -1,0 +1,143 @@
+SLANG-Computation Verification
+
+1. Run reference demonstration:
+   python demo/slang_kernel.py
+
+2. Observe:
+   - deterministic structural computation resolution
+   - no dependence on execution flow, control flow, or prescribed sequencing
+   - rules evaluate purely based on structure
+   - no execution path required for correctness
+   - computational outcome emerges only when structure is complete and consistent
+
+3. Expected visible state (baseline run):
+   - total = 150
+   - discount = "10"
+   - premium = "true"
+   - offer = "unlocked"
+
+4. Expected structural maturity:
+   - True (structure complete AND consistent)
+
+5. Expected behavior:
+   - complete structure → outcome visible
+   - incomplete structure → no unsupported outcome
+   - conflicting structure → ABSTAIN (no unsafe outcome)
+   - identical structure → identical outcome
+
+6. Verify determinism:
+   - run the script multiple times
+   - confirm identical visible state
+
+7. Modify structure (test incomplete case):
+   Update:
+   total = 80
+
+   Run again:
+   python demo/slang_kernel.py
+
+   Expected:
+   - total = 80
+
+   Note:
+   - discount is not visible
+   - premium is not visible
+   - offer is not visible
+
+   Structural maturity:
+   - False (structure incomplete for derived chain)
+
+8. Modify structure (test order independence):
+   Restore:
+   total = 150
+
+   Reorder rules as:
+
+   rules = [
+       ("offer", "unlocked", lambda s: s.get("premium") == "true"),
+       ("premium", "true", lambda s: s.get("discount") == "10"),
+       ("discount", "10", lambda s: s.get("total", 0) > 100),
+   ]
+
+   Run again:
+   python demo/slang_kernel.py
+
+   Expected:
+   - total = 150
+   - discount = "10"
+   - premium = "true"
+   - offer = "unlocked"
+
+   Result:
+   - identical outcome despite different rule order
+
+9. Modify structure (test direct injection):
+   Update:
+   state = {
+       "total": 80,
+       "discount": "10"
+   }
+
+   Run again:
+   python demo/slang_kernel.py
+
+   Expected:
+   - total = 80
+   - discount = "10"
+   - premium = "true"
+   - offer = "unlocked"
+
+   Result:
+   - structure continues resolving from visible state
+   - outcome depends on current structure, not historical sequence
+
+Note:
+- injected values are treated as structurally visible inputs
+- the system resolves forward from current visible structure
+- prior structural conditions are not revalidated retroactively
+
+10. Modify structure (test final state injection):
+    Update:
+    state = {
+        "offer": "unlocked"
+    }
+
+    Run again:
+    python demo/slang_kernel.py
+
+    Expected:
+    - offer = "unlocked"
+
+    Result:
+    - nothing else is forced
+    - already visible structure remains stable
+
+11. Verify file identity:
+    certutil -hashfile demo\slang_kernel.py SHA256
+
+Note:
+- the file hash represents file identity
+- structural resolution is independent of file representation
+
+Structural resolution principle:
+
+   resolve(structure) →
+
+       outcome_visible        if complete AND consistent
+       no_visible_outcome     if incomplete
+       ABSTAIN                if conflicting
+
+The computational outcome is derived from structure, not from execution flow.
+
+- conflicting structure → ABSTAIN (conceptual model; not implemented in this minimal reference kernel)
+
+12. Confirm:
+   - output is identical across repeated runs
+   - incomplete structure produces no unsupported derived outcome
+   - completing structure reveals outcome deterministically
+   - rule reordering does not change the result
+   - no execution flow, control flow, or prescribed sequencing is required
+
+Result:
+Deterministic structural computation resolution confirmed for SLANG-Computation.
+Computational outcomes emerge from structure without execution flow, control flow, prescribed sequencing, or authored procedural order.

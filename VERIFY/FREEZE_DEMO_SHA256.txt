@@ -1,0 +1,3 @@
+SLANG-Computation Demo Freeze — SHA256: 
+
+demo/slang_kernel.py = 9d4aa61269b727a9b7fa0e3d4f3e9f619cbed8d8c2453c397199bd59d31c4181

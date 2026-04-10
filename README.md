@@ -12,6 +12,8 @@
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
 ![Open-Standard](https://img.shields.io/badge/Reference-Open%20Standard-blue)
 
+![Verify](https://github.com/OMPSHUNYAYA/SLANG-Computation/actions/workflows/slang-computation-verify.yml/badge.svg)
+
 **Proven in ~459 Bytes.**
 
 Computational outcomes emerge directly from structure — without requiring execution flow, control flow, or prescribed sequencing for correctness.

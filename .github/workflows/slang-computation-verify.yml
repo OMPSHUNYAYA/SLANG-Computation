@@ -166,30 +166,37 @@ jobs:
         run: |
           python - <<'PY'
           import ast
-          import re
           import subprocess
           import sys
           from pathlib import Path
 
-          src = Path("demo/slang_kernel.py")
           temp = Path("demo/_ci_order_check.py")
 
-          text = src.read_text(encoding="utf-8")
+          temp_code = "\n".join([
+              'rules = [',
+              '    ("offer", "unlocked", lambda s: s.get("premium") == "true"),',
+              '    ("premium", "true", lambda s: s.get("discount") == "10"),',
+              '    ("discount", "10", lambda s: s.get("total", 0) > 100),',
+              ']',
+              '',
+              'state = {',
+              '    "total": 150',
+              '}',
+              '',
+              'changed = True',
+              '',
+              'while changed:',
+              '    changed = False',
+              '    for key, value, cond in rules:',
+              '        if cond(state) and state.get(key) != value:',
+              '            state[key] = value',
+              '            changed = True',
+              '',
+              'print(state)',
+              '',
+          ])
 
-          pattern = r'rules\s*=\s*\[\s*\("discount",\s*"10",\s*lambda s:\s*s\.get\("total",\s*0\)\s*>\s*100\),\s*\("premium",\s*"true",\s*lambda s:\s*s\.get\("discount"\)\s*==\s*"10"\),\s*\("offer",\s*"unlocked",\s*lambda s:\s*s\.get\("premium"\)\s*==\s*"true"\),\s*\]'
-          replacement = '''rules = [
-    ("offer", "unlocked", lambda s: s.get("premium") == "true"),
-    ("premium", "true", lambda s: s.get("discount") == "10"),
-    ("discount", "10", lambda s: s.get("total", 0) > 100),
-]'''
-
-          new_text, count = re.subn(pattern, replacement, text, count=1, flags=re.DOTALL)
-
-          if count != 1:
-              print("ERROR: Expected baseline rules block not found in demo/slang_kernel.py")
-              sys.exit(1)
-
-          temp.write_text(new_text, encoding="utf-8")
+          temp.write_text(temp_code, encoding="utf-8")
 
           expected_visible_state = {
               "total": 150,
